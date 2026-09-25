@@ -1,41 +1,77 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
+  const navigate = useNavigate();
 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tipoUsuario, setTipoUsuario] = useState("persona");
+
+  const [tagsDisponibles, setTagsDisponibles] = useState([]);
   const [intereses, setIntereses] = useState([]);
 
-  const tagsDisponibles = [
-    "Tecnología",
-    "Emprendimientos",
-    "Arte",
-    "Cultura",
-    "Música",
-    "Educación",
-    "Deportes",
-    "Gastronomía"
-  ];
+  useEffect(() => {
+    async function cargarTags() {
+      try {
+        const respuesta = await fetch("http://localhost:3000/api/tags");
+        const datos = await respuesta.json();
+
+        setTagsDisponibles(datos);
+      } catch (error) {
+        console.error("Error al cargar las etiquetas:", error);
+      }
+    }
+
+    cargarTags();
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    try {
+      const respuesta = await fetch(
+        "http://localhost:3000/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            username: nombre,
+            email,
+            password,
+            type: tipoUsuario,
+            tags: intereses
+          })
+        }
+      );
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(datos.message || "Error al registrarse");
+      }
+
+      alert("Cuenta creada correctamente.");
+
+      navigate("/login");
+    } catch (error) {
+      alert(error.message);
+    }
+  }
 
   return (
     <main className="register-page">
-
       <section className="register-container">
-
-        {/* Logo */}
 
         <div className="register-logo">
           <span>✦</span>
           TAGMA
         </div>
 
-
-        {/* Encabezado */}
-
         <div className="register-header">
-
           <p className="register-eyebrow">
             NUEVA CUENTA
           </p>
@@ -50,18 +86,14 @@ function Register() {
             Contanos un poco sobre vos para
             encontrar contenido que te interese.
           </p>
-
         </div>
 
-
-        {/* Formulario */}
-
-        <form className="register-form">
-
-          {/* Nombre */}
+        <form
+          className="register-form"
+          onSubmit={handleSubmit}
+        >
 
           <div className="form-group">
-
             <label htmlFor="nombre">
               Nombre
             </label>
@@ -73,14 +105,9 @@ function Register() {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
-
           </div>
 
-
-          {/* Email */}
-
           <div className="form-group">
-
             <label htmlFor="register-email">
               Email
             </label>
@@ -92,14 +119,9 @@ function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-
           </div>
 
-
-          {/* Contraseña */}
-
           <div className="form-group">
-
             <label htmlFor="register-password">
               Contraseña
             </label>
@@ -111,14 +133,9 @@ function Register() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-
           </div>
 
-
-          {/* Tipo de usuario */}
-
           <div className="form-group">
-
             <label htmlFor="tipo-usuario">
               Tipo de usuario
             </label>
@@ -128,7 +145,6 @@ function Register() {
               value={tipoUsuario}
               onChange={(e) => setTipoUsuario(e.target.value)}
             >
-
               <option value="persona">
                 Persona
               </option>
@@ -136,18 +152,12 @@ function Register() {
               <option value="emprendimiento">
                 Emprendimiento
               </option>
-
             </select>
-
           </div>
-
-
-          {/* Intereses */}
 
           <div className="register-tags">
 
             <div className="register-tags-header">
-
               <label>
                 ¿Qué te interesa?
               </label>
@@ -155,63 +165,49 @@ function Register() {
               <span>
                 Elegí los que quieras
               </span>
-
             </div>
-
 
             <div className="tags-grid">
 
               {tagsDisponibles.map((tag) => (
-
                 <label
                   className={
-                    intereses.includes(tag)
+                    intereses.includes(tag.id)
                       ? "tag-option selected"
                       : "tag-option"
                   }
-                  key={tag}
+                  key={tag.id}
                 >
 
                   <input
                     type="checkbox"
-                    value={tag}
-                    checked={intereses.includes(tag)}
+                    value={tag.id}
+                    checked={intereses.includes(tag.id)}
                     onChange={() => {
-
-                      if (intereses.includes(tag)) {
-
+                      if (intereses.includes(tag.id)) {
                         setIntereses(
                           intereses.filter(
-                            (interes) => interes !== tag
+                            (id) => id !== tag.id
                           )
                         );
-
                       } else {
-
                         setIntereses([
                           ...intereses,
-                          tag
+                          tag.id
                         ]);
-
                       }
-
                     }}
                   />
 
                   <span>
-                    {tag}
+                    {tag.name}
                   </span>
 
                 </label>
-
               ))}
 
             </div>
-
           </div>
-
-
-          {/* Botón */}
 
           <button
             className="register-button"
@@ -222,11 +218,7 @@ function Register() {
 
         </form>
 
-
-        {/* Volver al login */}
-
         <div className="register-login">
-
           <span>
             ¿Ya tenés una cuenta?
           </span>
@@ -234,11 +226,9 @@ function Register() {
           <a href="/login">
             Iniciá sesión
           </a>
-
         </div>
 
       </section>
-
     </main>
   );
 }
