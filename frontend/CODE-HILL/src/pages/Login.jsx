@@ -31,18 +31,18 @@ function Login() {
 
         {/* Formulario */}
         <form
-          className="login-form"
-          onSubmit={(e) => {
-            e.preventDefault();
+  className="login-form"
+  onSubmit={async (e) => {
+    e.preventDefault();
 
-            iniciarSesion({
-              nombre: "Santiago Falcón",
-              email: "santi@email.com",
-            });
-
-            navigate("/dashboard");
-          }}
-        >
+    try {
+      await iniciarSesion(email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      alert(error.message);
+    }
+  }}
+>
           <div className="form-group">
             <label htmlFor="email">Email</label>
 
