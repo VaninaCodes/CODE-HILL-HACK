@@ -3,27 +3,27 @@ import Tag from "./tag.js";
 import UserTag from "./userTag.js";
 
 User.belongsToMany(Tag, {
-    through: UserTag,
-    foreignKey: "userId",
-    otherKey: "tagId",
+  through: UserTag,
+  foreignKey: "userId",
+  otherKey: "tagId",
 });
 
 Tag.belongsToMany(User, {
-    through: UserTag,
-    foreignKey: "tagId",
-    otherKey: "userId",
+  through: UserTag,
+  foreignKey: "tagId",
+  otherKey: "userId",
 });
 
 UserTag.belongsTo(User, {
-    foreignKey: "userId",
+  foreignKey: "userId",
 });
 
 UserTag.belongsTo(Tag, {
-    foreignKey: "tagId",
+  foreignKey: "tagId",
 });
 
 export {
-    User,
-    Tag,
-    UserTag,
+  User,
+  Tag,
+  UserTag,
 };

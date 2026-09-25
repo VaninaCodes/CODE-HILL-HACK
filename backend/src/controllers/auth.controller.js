@@ -234,3 +234,60 @@ export const updateProfile = async (req, res) => {
     });
   }
 };
+
+export const updateTags = async (req, res) => {
+  try {
+    const { tags } = req.body;
+
+    if (!Array.isArray(tags)) {
+      return res.status(400).json({
+        message: "Las etiquetas deben enviarse como un array.",
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Usuario no encontrado.",
+      });
+    }
+
+    const selectedTags = await Tag.findAll({
+      where: {
+        id: tags,
+      },
+    });
+
+    if (selectedTags.length !== tags.length) {
+      return res.status(400).json({
+        message: "Una o más etiquetas no existen.",
+      });
+    }
+
+    await UserTag.destroy({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    const userTags = selectedTags.map((tag) => ({
+      userId: user.id,
+      tagId: tag.id,
+    }));
+
+    if (userTags.length > 0) {
+      await UserTag.bulkCreate(userTags);
+    }
+
+    return res.status(200).json({
+      message: "Intereses actualizados correctamente.",
+      tags: selectedTags,
+    });
+  } catch (error) {
+    console.error("Error al actualizar los intereses:", error);
+    return res.status(500).json({
+      message: "Error al actualizar los intereses.",
+    });
+  }
+};
