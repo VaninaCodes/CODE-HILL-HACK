@@ -1,12 +1,18 @@
+import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Login() {
   const { iniciarSesion } = useAuth();
   const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   return (
     <main className="login-page">
       <section className="login-container">
+
         {/* Logo */}
         <div className="login-logo">
           <span>✦</span>
@@ -31,22 +37,28 @@ function Login() {
 
         {/* Formulario */}
         <form
-  className="login-form"
-  onSubmit={async (e) => {
-    e.preventDefault();
+          className="login-form"
+          onSubmit={async (e) => {
+            e.preventDefault();
 
-    try {
-      await iniciarSesion(email, password);
-      navigate("/dashboard");
-    } catch (error) {
-      alert(error.message);
-    }
-  }}
->
+            try {
+              await iniciarSesion(email, password);
+              navigate("/dashboard");
+            } catch (error) {
+              alert(error.message);
+            }
+          }}
+        >
           <div className="form-group">
             <label htmlFor="email">Email</label>
 
-            <input id="email" type="email" placeholder="tu@email.com" />
+            <input
+              id="email"
+              type="email"
+              placeholder="tu@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
           <div className="form-group">
@@ -56,7 +68,13 @@ function Login() {
               <button type="button">¿La olvidaste?</button>
             </div>
 
-            <input id="password" type="password" placeholder="••••••••" />
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
 
           <button className="login-button" type="submit">
@@ -67,9 +85,9 @@ function Login() {
         {/* Registro */}
         <div className="login-register">
           <span>¿Todavía no tenés una cuenta?</span>
-
           <a href="/register">Registrate</a>
         </div>
+
       </section>
     </main>
   );
