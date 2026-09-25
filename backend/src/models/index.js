@@ -12,12 +12,14 @@ User.belongsToMany(Tag, {
     through: UserTag,
     foreignKey: "userId",
     otherKey: "tagId",
+    as: "tags",
 });
 
 Tag.belongsToMany(User, {
     through: UserTag,
     foreignKey: "tagId",
     otherKey: "userId",
+    as: "users",
 });
 
 UserTag.belongsTo(User, {

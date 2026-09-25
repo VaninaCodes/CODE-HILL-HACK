@@ -1,5 +1,19 @@
 import { body, param } from "express-validator";
 
+// Convierte el string JSON de tagIds (enviado por FormData) a array real
+const parseTagIds = (value) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === "string" && value.trim() !== "") {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : value;
+        } catch {
+            return value;
+        }
+    }
+    return value;
+};
+
 // TODO: cuando este el middleware de auth, sacar la validacion de "userId"
 // del body y tomarlo directamente de req.user.id
 export const createPostValidator = [
@@ -13,10 +27,8 @@ export const createPostValidator = [
     body("content")
         .trim()
         .notEmpty().withMessage("El contenido es obligatorio"),
-    body("image")
-        .optional()
-        .isString(),
     body("tagIds")
+        .customSanitizer(parseTagIds)
         .optional()
         .isArray().withMessage("tagIds debe ser un arreglo de ids"),
     body("tagIds.*")
@@ -34,10 +46,8 @@ export const updatePostValidator = [
         .optional()
         .trim()
         .notEmpty().withMessage("El contenido no puede quedar vacio"),
-    body("image")
-        .optional()
-        .isString(),
     body("tagIds")
+        .customSanitizer(parseTagIds)
         .optional()
         .isArray().withMessage("tagIds debe ser un arreglo de ids"),
     body("tagIds.*")

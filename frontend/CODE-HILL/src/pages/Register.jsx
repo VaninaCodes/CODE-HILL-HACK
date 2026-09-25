@@ -1,12 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { registerUser } from "../services/api";
 
 function Register() {
+
+  const navigate = useNavigate();
 
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [tipoUsuario, setTipoUsuario] = useState("persona");
   const [intereses, setIntereses] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const tagsDisponibles = [
     "Tecnología",
@@ -18,6 +24,37 @@ function Register() {
     "Deportes",
     "Gastronomía"
   ];
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (!nombre || !email || !password) {
+      setError("Completá nombre, email y contraseña.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await registerUser({
+        username: nombre,
+        email,
+        password,
+        type: tipoUsuario,
+        // OJO: el backend espera un array de IDs de etiquetas (tags: [1, 5, 12]),
+        // no nombres como estos. Hay que resolver ese mapeo antes de mandar esto
+        // a produccion (ver nota abajo del componente).
+        tags: intereses,
+      });
+
+      navigate("/login");
+    } catch (err) {
+      setError(err.message || "No se pudo completar el registro.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="register-page">
@@ -56,7 +93,13 @@ function Register() {
 
         {/* Formulario */}
 
-        <form className="register-form">
+        <form className="register-form" onSubmit={handleSubmit}>
+
+          {error && (
+            <p className="register-error">
+              {error}
+            </p>
+          )}
 
           {/* Nombre */}
 
@@ -216,8 +259,9 @@ function Register() {
           <button
             className="register-button"
             type="submit"
+            disabled={loading}
           >
-            Crear cuenta
+            {loading ? "Creando cuenta..." : "Crear cuenta"}
           </button>
 
         </form>

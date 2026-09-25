@@ -12,13 +12,30 @@ import {
     postIdValidator,
 } from "../middleware/validations/post.validator.js";
 import { validateResult } from "../middleware/validate.js";
+import { uploadPostImage } from "../middleware/upload.js";
 
 const router = Router();
 
 router.get("/", getAllPost);
 router.get("/:id", postIdValidator, validateResult, getPostById);
-router.post("/", createPostValidator, validateResult, createPost);
-router.put("/:id", updatePostValidator, validateResult, updatePost);
+
+// uploadPostImage.single("image") procesa el archivo ANTES de validar el resto del body
+router.post(
+    "/",
+    uploadPostImage.single("image"),
+    createPostValidator,
+    validateResult,
+    createPost
+);
+
+router.put(
+    "/:id",
+    uploadPostImage.single("image"),
+    updatePostValidator,
+    validateResult,
+    updatePost
+);
+
 router.delete("/:id", postIdValidator, validateResult, deletePost);
 
 export default router;

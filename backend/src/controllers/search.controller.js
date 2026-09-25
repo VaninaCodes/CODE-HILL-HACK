@@ -1,10 +1,7 @@
 import { Op } from "sequelize";
-import { Post, Event, Tag } from "../models/index.js";
+import { Post, Event, Tag, User } from "../models/index.js";
 
-// GET /search?tag=Tecnología&type=posts&q=palabra
-// type: "posts" | "events" | "all" (default "all")
-// tag: nombre exacto de la etiqueta
-// q: texto libre buscado en titulo/contenido (o titulo/descripcion en eventos)
+// GET /search?tag=Tecnología&type=posts|events|users|all&q=palabra
 export const search = async (req, res) => {
     try {
         const { tag, type = "all", q } = req.query;
@@ -47,6 +44,24 @@ export const search = async (req, res) => {
 
             results.events = await Event.findAll({
                 where: eventWhere,
+                include: [tagInclude],
+            });
+        }
+
+        // NUEVO: busqueda de personas / emprendimientos
+        if (type === "all" || type === "users") {
+            const userWhere = q
+                ? {
+                      [Op.or]: [
+                          { username: { [Op.like]: `%${q}%` } },
+                          { description: { [Op.like]: `%${q}%` } },
+                      ],
+                  }
+                : {};
+
+            results.users = await User.findAll({
+                where: userWhere,
+                attributes: ["id", "username", "type", "description", "avatar"],
                 include: [tagInclude],
             });
         }
