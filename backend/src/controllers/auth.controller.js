@@ -79,6 +79,7 @@ export const register = async (req, res) => {
         });
     }
 };
+
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -133,4 +134,103 @@ export const login = async (req, res) => {
             message: "Error al iniciar sesión.",
         });
     }
+};
+
+export const getProfile = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: {
+        exclude: ["password"],
+      },
+      include: {
+        model: Tag,
+        through: {
+          attributes: [],
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Usuario no encontrado.",
+      });
+    }
+
+    return res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    console.error("Error al obtener el perfil:", error);
+
+    return res.status(500).json({
+      message: "Error al obtener el perfil.",
+    });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const {
+      username,
+      description,
+      avatar,
+      type,
+    } = req.body;
+
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Usuario no encontrado.",
+      });
+    }
+
+    if (username !== undefined) {
+      const existingUsername = await User.findOne({
+        where: {
+          username,
+        },
+      });
+
+      if (existingUsername && existingUsername.id !== user.id) {
+        return res.status(400).json({
+          message: "El nombre de usuario ya está registrado.",
+        });
+      }
+
+      user.username = username;
+    }
+
+    if (description !== undefined) {
+      user.description = description;
+    }
+
+    if (avatar !== undefined) {
+      user.avatar = avatar;
+    }
+
+    if (type !== undefined) {
+      user.type = type;
+    }
+
+    await user.save();
+
+    return res.status(200).json({
+      message: "Perfil actualizado correctamente.",
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        type: user.type,
+        description: user.description,
+        avatar: user.avatar,
+      },
+    });
+  } catch (error) {
+    console.error("Error al actualizar el perfil:", error);
+
+    return res.status(500).json({
+      message: "Error al actualizar el perfil.",
+    });
+  }
 };
