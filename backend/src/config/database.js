@@ -14,5 +14,14 @@ const sequelize = new Sequelize(
         logging: false,
     }
 );
+export const startDB = async () => {
+    try {
+        await sequelize.authenticate();
+        await sequelize.sync({ force: true });
+        console.log("Se conecto a la base de datos");
+    } catch (error) {
+        console.log("No se pudo conectar a la base de datos: ", error);
+    }
+};
 
 export default sequelize;
