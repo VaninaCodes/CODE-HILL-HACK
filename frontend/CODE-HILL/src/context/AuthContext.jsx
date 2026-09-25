@@ -3,15 +3,25 @@ import { createContext, useContext, useState } from "react";
 const AuthContext = createContext();
 
 function AuthProvider({ children }) {
-  const [usuario, setUsuario] = useState(null);
+  const [usuario, setUsuario] = useState(() => {
+  const usuarioGuardado = localStorage.getItem("usuario");
 
-  function iniciarSesion(datosUsuario) {
-    setUsuario(datosUsuario);
+  if (usuarioGuardado) {
+    return JSON.parse(usuarioGuardado);
   }
+
+  return null;
+});
+
+function iniciarSesion(datosUsuario) {
+  setUsuario(datosUsuario);
+  localStorage.setItem("usuario", JSON.stringify(datosUsuario));
+}
 
   function cerrarSesion() {
-    setUsuario(null);
-  }
+  setUsuario(null);
+  localStorage.removeItem("usuario");
+}
 
   return (
     <AuthContext.Provider

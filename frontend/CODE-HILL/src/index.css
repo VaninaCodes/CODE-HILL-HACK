@@ -596,6 +596,10 @@ a {
 }
 
 .navbar-user {
+  gap: 20px;
+}
+
+.navbar-user {
   display: flex;
   align-items: center;
 }
@@ -1103,4 +1107,20 @@ a {
     width: 100%;
   }
 
+}
+
+.navbar-logout {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+}
+
+.navbar-logout:hover {
+  border-color: var(--accent);
+  color: var(--paper-light);
 }

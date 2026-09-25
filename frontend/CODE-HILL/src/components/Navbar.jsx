@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
+  const { cerrarSesion } = useAuth();
   return (
     <header className="navbar">
 
@@ -22,10 +24,17 @@ function Navbar() {
       </nav>
 
       <div className="navbar-user">
-        <div className="navbar-avatar">
-          S
-        </div>
-      </div>
+  <div className="navbar-avatar">
+    S
+  </div>
+
+  <button
+    className="navbar-logout"
+    onClick={cerrarSesion}
+  >
+    Cerrar sesión
+  </button>
+</div>
 
     </header>
   );
